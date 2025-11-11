@@ -27,17 +27,38 @@ public:
 template <typename T>
 class Queue {
 private:
-    vector<T> data; 
+    T arr[100];     
+    int front, rear;
 
 public:
+    Queue();     
     void enqueue(const T& value);
     void dequeue();
-    T front();
+    T frontItem();
     bool isEmpty();
     size_t size();
     void display();
     void clear();
 };
+//Request Class
+class Request {
+public:
+    string recipientName;
+    string foodType;
+    int quantity;
+    bool isUrgent;
+    bool isFulfilled;
+    string organizationType;  
+    string organizationName;  
+    string location;          
+    int priorityLevel;        
+
+
+    Request(); // default constructor
+    Request(string name, string food, int qty, string orgType, string orgName, string loc);
+    bool operator<(const Request& other) const; // for priority queue
+};
+
 
 //Priority Queue
 template <typename T>
@@ -51,6 +72,7 @@ public:
     T top();
     bool isEmpty();
     size_t size();
+    void display();
 };
 
 //Graph 
