@@ -218,3 +218,278 @@ void Graph<T>::display() {
         cout << endl;
     }
 }
+
+
+// ---------------- Donor Implementation ----------------
+Donor::Donor(int id, string name, string contact, string type, string addr)
+{
+    donorId = id;
+    donorName = name;
+    contactInfo = contact;
+    donorType = type;
+    address = addr;
+}
+
+int Donor::getDonorId() const
+{
+    return donorId;
+}
+
+string Donor::getDonorName() const
+{
+    return donorName;
+}
+
+string Donor::getContactInfo() const
+{
+    return contactInfo;
+}
+
+string Donor::getDonorType() const
+{
+    return donorType;
+}
+
+string Donor::getAddress() const
+{
+    return address;
+}
+
+void Donor::displayDonor() const
+{
+    cout << "Donor ID: " << donorId
+        << ", Name: " << donorName
+        << ", Type: " << donorType
+        << ", Contact: " << contactInfo
+        << ", Address: " << address
+        << endl;
+}
+
+// ---------------- DonorNode ----------------
+DonorNode::DonorNode(Donor d)
+{
+    data = d;
+    next = nullptr;
+}
+
+// ---------------- DonorLinkedList ----------------
+DonorLinkedList::DonorLinkedList()
+{
+    head = nullptr;
+}
+
+void DonorLinkedList::addDonor(Donor d)
+{
+    DonorNode* newNode = new DonorNode(d);
+
+    if (!head)
+    {
+        head = newNode;
+        return;
+    }
+
+    DonorNode* temp = head;
+    while (temp->next)
+    {
+        temp = temp->next;
+    }
+
+    temp->next = newNode;
+}
+
+Donor* DonorLinkedList::searchDonor(int id)
+{
+    DonorNode* temp = head;
+    while (temp)
+    {
+        if (temp->data.getDonorId() == id)
+            return &(temp->data);
+
+        temp = temp->next;
+    }
+    return nullptr;
+}
+
+bool DonorLinkedList::removeDonor(int id)
+{
+    if (!head)
+        return false;
+    if (head->data.getDonorId() == id)
+    {
+        DonorNode* toDelete = head;
+        head = head->next;
+        delete toDelete;
+        return true;
+    }
+    DonorNode* temp = head;
+    while (temp->next && temp->next->data.getDonorId() != id)
+    {
+        temp = temp->next;
+    }
+    if (!temp->next)
+        return false;
+
+    DonorNode* toDelete = temp->next;
+    temp->next = temp->next->next;
+    delete toDelete;
+    return true;
+}
+
+void DonorLinkedList::displayDonors() const
+{
+    if (head == nullptr) {
+        cout << "\nNo donors to display." << endl;
+    }
+    DonorNode* temp = head;
+    while (temp)
+    {
+        temp->data.displayDonor();
+        temp = temp->next;
+    }
+}
+
+// ---------------- FoodDonation ----------------
+FoodDonation::FoodDonation(int dId, int drId, string type, int qty, string date, string stat)
+{
+    donationId = dId;
+    donorId = drId;
+    foodType = type;
+    quantity = qty;
+    expiryDate = date;
+    status = stat;
+}
+
+int FoodDonation::getDonationId() const
+{
+    return donationId;
+}
+int FoodDonation::getDonorId() const
+{
+    return donorId;
+}
+string FoodDonation::getFoodType() const
+{
+    return foodType;
+}
+int FoodDonation::getQuantity() const
+{
+    return quantity;
+}
+string FoodDonation::getExpiryDate() const
+{
+    return expiryDate;
+}
+string FoodDonation::getStatus() const
+{
+    return status;
+}
+void FoodDonation::setStatus(string newStatus)
+{
+    status = newStatus;
+}
+
+void FoodDonation::displayDonation() const
+{
+    cout << "Donation ID: " << donationId
+        << ", Donor ID: " << donorId
+        << ", Food: " << foodType
+        << ", Quantity: " << quantity
+        << ", Expiry: " << expiryDate
+        << ", Status: " << status
+        << endl;
+}
+
+// ---------------- DonationNode ----------------
+DonationNode::DonationNode(FoodDonation d)
+{
+    data = d;
+    next = nullptr;
+}
+// ---------------- DonationLinkedList ----------------
+DonationLinkedList::DonationLinkedList()
+{
+    head = nullptr;
+}
+
+void DonationLinkedList::addDonation(FoodDonation d)
+{
+    DonationNode* newNode = new DonationNode(d);
+    if (!head)
+    {
+        head = newNode;
+        return;
+    }
+    DonationNode* temp = head;
+    while (temp->next)
+    {
+        temp = temp->next;
+    }
+    temp->next = newNode;
+}
+
+FoodDonation* DonationLinkedList::searchDonation(int donationId)
+{
+    DonationNode* temp = head;
+    while (temp)
+    {
+        if (temp->data.getDonationId() == donationId)
+            return &(temp->data);
+        temp = temp->next;
+    }
+    return nullptr;
+}
+
+bool DonationLinkedList::removeDonation(int donationId)
+{
+    if (!head)
+        return false;
+    if (head->data.getDonationId() == donationId)
+    {
+        DonationNode* toDelete = head;
+        head = head->next;
+        delete toDelete;
+        return true;
+    }
+    DonationNode* temp = head;
+    while (temp->next && temp->next->data.getDonationId() != donationId)
+    {
+        temp = temp->next;
+    }
+    if (!temp->next)
+        return false;
+
+    DonationNode* toDelete = temp->next;
+    temp->next = temp->next->next;
+    delete toDelete;
+    return true;
+}
+
+void DonationLinkedList::displayDonations() const
+{
+    if (head == nullptr) {
+        cout << "\nNo donations to display." << endl;
+    }
+    DonationNode* temp = head;
+    while (temp)
+    {
+        temp->data.displayDonation();
+        temp = temp->next;
+    }
+}
+
+void DonationLinkedList::displayDonationsByDonor(int donorId) const
+{
+    DonationNode* temp = head;
+    bool found = false;
+    while (temp)
+    {
+        if (temp->data.getDonorId() == donorId)
+        {
+            temp->data.displayDonation();
+            found = true;
+        }
+        temp = temp->next;
+    }
+    if (!found)
+        cout << "No donations found for donor ID: " << donorId << endl;
+}

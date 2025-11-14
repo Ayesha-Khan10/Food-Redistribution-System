@@ -87,5 +87,97 @@ public:
     void display();
 };
 
+// ------------------- Donor Class -------------------
+class Donor {
+private:
+    int donorId;            // Unique ID for donor
+    string donorName;       // Name of person or organization
+    string contactInfo;     // Phone/email
+    string donorType;       // "Individual" or "Organization"
+    string address;         // Optional, location of donor
+
+public:
+    Donor(int id = 0, string name = "", string contact = "", string type = "Individual", string addr = "");
+
+    int getDonorId() const;
+    string getDonorName() const;
+    string getContactInfo() const;
+    string getDonorType() const;
+    string getAddress() const;
+
+    void displayDonor() const;
+};
+
+// ------------------- Donor Node -------------------
+class DonorNode {
+public:
+    Donor data;
+    DonorNode* next;
+
+    DonorNode(Donor d);
+};
+
+// ------------------- Donor Linked List -------------------
+class DonorLinkedList {
+private:
+    DonorNode* head;
+
+public:
+    DonorLinkedList();
+
+    void addDonor(Donor d);
+    Donor* searchDonor(int id);
+    bool removeDonor(int id);
+    void displayDonors() const;
+};
+
+// ------------------- FoodDonation Class -------------------
+class FoodDonation {
+private:
+    int donationId;      // Unique donation ID
+    int donorId;         // Link to Donor
+    string foodType;     // e.g., "Rice", "Vegetables"
+    int quantity;        // Quantity in kg or units
+    string expiryDate;   // Expiry date (if applicable)
+    string status;       //Pending or Completed
+
+public:
+    FoodDonation(int dId = 0, int drId = 0, string type = "", int qty = 0, string date = "", string stat = "Pending");
+
+    int getDonationId() const;
+    int getDonorId() const;
+    string getFoodType() const;
+    int getQuantity() const;
+    string getExpiryDate() const;
+    string getStatus() const;      
+    void setStatus(string newStatus);
+
+    void displayDonation() const;
+};
+
+// ------------------- Donation Node -------------------
+class DonationNode {
+public:
+    FoodDonation data;
+    DonationNode* next;
+
+    DonationNode(FoodDonation d);
+};
+
+// ------------------- Donation Linked List -------------------
+class DonationLinkedList {
+private:
+    DonationNode* head;
+
+public:
+    DonationLinkedList();
+
+    void addDonation(FoodDonation d);
+    bool removeDonation(int donationId);
+    FoodDonation* searchDonation(int donationId);
+    void displayDonations() const;
+    void displayDonationsByDonor(int donorId) const;  // Show all donations by a specific donor
+};
+
 //Include so compiler can see it at compile time (code above this, dont code after it)
 #include "redistribution.cpp"
