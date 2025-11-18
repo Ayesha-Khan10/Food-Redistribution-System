@@ -1,95 +1,38 @@
-#include "redistribution.hpp"
+﻿#include "redistribution.hpp"
+#include <iostream>
 #include <string>
-
 using namespace std;
+
+DonorLinkedList donors;
+DonationLinkedList donations;
+PriorityQueue<Request> requestPQ;
+Queue<Request> pendingQueue;       
+Stack<Request> fulfilledStack;
 
 int main() {
     cout << "TESTING STACK" << endl;
     Stack<int> s;
-    s.push(10);
-    s.push(20);
-    s.push(30);
-    cout << "Stack contents: ";
-    s.display();
+    s.push(10); s.push(20); s.push(30);
+    cout << "Stack contents: "; s.display();
     cout << "Top element: " << s.top() << endl;
     s.pop();
-    cout << "After pop: ";
-    s.display();
+    cout << "After pop: "; s.display();
     cout << "Is stack empty? " << (s.isEmpty() ? "Yes" : "No") << endl;
     cout << endl;
 
     cout << "TESTING QUEUE" << endl;
     Queue<string> q;
-    q.enqueue("Ali");
-    q.enqueue("Shaheer");
-    q.enqueue("Yariq");
-    cout << "Queue contents: ";
-    q.display();
+    q.enqueue("Ali"); q.enqueue("Shaheer"); q.enqueue("Yariq");
+    cout << "Queue contents: "; q.display();
     cout << "Front element: " << q.frontItem() << endl;
     q.dequeue();
-    cout << "After dequeue: ";
-    q.display();
+    cout << "After dequeue: "; q.display();
     cout << "Is queue empty? " << (q.isEmpty() ? "Yes" : "No") << endl;
     cout << endl;
 
-    PriorityQueue<Request> requestPQ;
-    Stack<Request> fulfilledRequests;
-
-    int choice;
-
-   do {
-        cout << "\n--- REQUEST MANAGEMENT MENU ---\n";
-        cout << "1. Add new request\n";
-        cout << "2. View all requests\n";
-        cout << "3. View fulfilled requests\n";
-        cout << "4. Exit\n";
-        cin >> choice;
-
-        if (choice == 1) {
-            string name, food, orgType, orgName, loc;
-            int qty;
-            cin.ignore(); 
-            cout << "Enter recipient name: ";
-            std::getline(std::cin, name);
-            cout << "Enter food type: ";
-            std::getline(std::cin, food);
-            cout << "Enter quantity: ";
-            cin >> qty;
-            cin.ignore();
-            cout << "Enter organization type (Hospital / OldAgeHome / Charity): ";
-            std::getline(std::cin, orgType);
-            cout << "Enter organization name: ";
-            std::getline(std::cin, orgName);
-            cout << "Enter location: ";
-            std::getline(std::cin, loc);
-
-            Request r(name, food, qty, orgType, orgName, loc);
-            requestPQ.push(r);
-            cout << "Request added successfully.\n";
-
-        }
-        else if (choice == 2) {
-            cout << "\nAll Requests (Urgent First):\n";
-            requestPQ.display();
-        }
-        else if (choice == 3) {
-            cout << "\nFulfilled Requests:\n";
-            if (fulfilledRequests.isEmpty()) {
-                cout << "No fulfilled requests yet.\n";
-            }
-            else {
-                fulfilledRequests.display();
-            }
-        }
-
-   } while (choice != 3);
-
-
     cout << "TESTING PRIORITY QUEUE" << endl;
     PriorityQueue<int> pq;
-    pq.push(5);
-    pq.push(15);
-    pq.push(10);
+    pq.push(5); pq.push(15); pq.push(10);
     cout << "Priority queue top: " << pq.top() << endl;
     pq.pop();
     cout << "After pop, new top: " << pq.top() << endl;
@@ -98,116 +41,355 @@ int main() {
 
     cout << "TESTING GRAPH" << endl;
     Graph<string> g;
-    g.addNode("Donor");
-    g.addNode("FoodBank");
-    g.addNode("Recipient");
-
+    g.addNode("Donor"); g.addNode("FoodBank"); g.addNode("Recipient");
     g.addEdge("Donor", "FoodBank", 10);
     g.addEdge("FoodBank", "Recipient", 15);
-
     cout << "\nGraph connections:\n";
     g.display();
+    cout << endl << "ALL TESTS COMPLETE" << endl << endl;
 
-    cout << endl << "ALL TESTS COMPLETE" << endl;
-
-    DonorLinkedList donors;
-    DonationLinkedList donations;
-
-    int choice2;
-
+    int choice;
     do {
-        cout << "\n==== Food Donation System ====\n";
-        cout << "1. Add Donor\n";
-        cout << "2. Add Donation\n";
-        cout << "3. Display All Donors\n";
-        cout << "4. Display All Donations\n";
-        cout << "5. Display Donations by Donor\n";
-        cout << "6. Remove Donor\n";
-        cout << "7. mark donation as completed\n";
-        cout << "8. Exit\n";
+        cout << "==================================================" << endl;
+        cout << "     FOOD REDISTRIBUTION SYSTEM - MAIN MENU     " << endl;
+        cout << "==================================================" << endl << endl;
+
+        cout << "1. Donor Management" << endl;
+        cout << "2. Donation Management" << endl;
+        cout << "3. Request Management" << endl;
+        cout << "4. Recipient Reports" << endl;
+        cout << "5. Exit" << endl << endl;
+
         cout << "Enter your choice: ";
-        cin >> choice2;
+        cin >> choice;
+        cin.ignore();
 
-        if (choice2 == 1) {
-            int id;
-            string name, contact, type, address;
-            cout << "Enter Donor ID: "; cin >> id;
-            cin.ignore(); // to ignore leftover newline
-            cout << "Enter Donor Name: "; getline(cin, name);
-            cout << "Enter Contact Info: "; getline(cin, contact);
-            cout << "Enter Donor Type (Individual/Organization): "; getline(cin, type);
-            cout << "Enter Address: "; getline(cin, address);
+        // 1. DONOR MANAGEMENT
+        if (choice == 1) {
+            int sub;
+            do {
+                cout << "--- DONOR MANAGEMENT ---\n\n";
+                cout << "1. Add New Donor\n";
+                cout << "2. Display All Donors\n";
+                cout << "3. Search Donor\n";
+                cout << "4. Remove Donor\n";
+                cout << "5. Back to Main Menu\n\n";
+                cout << "Enter choice: ";
+                cin >> sub; cin.ignore();
 
-            Donor d(id, name, contact, type, address);
-            donors.addDonor(d);
-            cout << "Donor added successfully.\n";
+                if (sub == 1) {
+                    int id; string name, contact, type, address;
+                    cout << "Enter Donor ID: ";
+                    cin >> id; 
+                    cin.ignore();
+                    cout << "Donor Name: "; 
+                    getline(cin, name);
+                    cout << "Contact Info: "; getline(cin, contact);
+                    cout << "Donor Type (Indivisual / Organization): "; getline(cin, type);
+                    cout << "Address: "; getline(cin, address);
+                    Donor d(id, name, contact, type, address);
+                    donors.addDonor(d);
+                    cout << "Donor added successfully!\n";
+                }
+                else if (sub == 2) {
+                    cout << "\n--- ALL DONORS ---\n";
+                    donors.displayDonors();
+                }
+                else if (sub == 3) {
+                    int id; cout << "Enter Donor ID: "; cin >> id;
+                    cout << (donors.searchDonor(id) ? "\nDonor FOUND!\n" : "\nDonor not found!\n");
+                }
+                else if (sub == 4) {
+                    int id; cout << "\nEnter Donor ID to remove: "; cin >> id;
+                    cout << (donors.removeDonor(id) ? "\nDonor removed successfully!\n" : "\nDonor not found!\n");
+                }
+                else if (sub == 5) {
+                    cout << "\nReturning to menu...\n";
+                }
+                else {
+                    cout << "\nInvalid option!\n";
+                }
+                if (sub != 5) {
+                    cout << "Returning to Main menu\n";
+                }
+            } while (sub != 5);
         }
-        else if (choice2 == 2) {
-            int donationId, donorId, quantity;
-            string foodType, expiry;
-            cout << "Enter Donation ID: "; cin >> donationId;
-            cout << "Enter Donor ID: "; cin >> donorId;
+        // 2. DONATION MANAGEMENT
+        else if (choice == 2) {
+            int sub;
+            do {
+                cout << "\n--- DONATION MANAGEMENT ---\n\n";
+                cout << "1. Add New Donation\n";
+                cout << "2. View All Donations\n";
+                cout << "3. View Donations by Donor\n";
+                cout << "4. Mark Donation as Completed\n";
+                cout << "5. Remove Expired Donations\n";
+                cout << "6. Back to Main Menu\n\n";
+                cout << "Enter choice: ";
+                cin >> sub; cin.ignore();
 
-            // Check if donor exists
-            if (!donors.searchDonor(donorId)) {
-                cout << "Donor not found! Please add donor first.\n";
-                continue;
-            }
+                if (sub == 1) {
+                    int donationId, donorId, quantity; string foodType, expiry;
+                    cout << "\nEnter Donation ID: "; cin >> donationId;
+                    cout << "Enter Donor ID: "; cin >> donorId;
+                    if (!donors.searchDonor(donorId)) {
+                        cout << "\nDonor not found! Cannot add donation.\n";
+                    }
+                    else {
+                        cin.ignore();
+                        cout << "Food Type: "; getline(cin, foodType);
+                        cout << "Quantity: "; cin >> quantity; cin.ignore();
+                        cout << "Expiry Date (YYYY-MM-DD): "; getline(cin, expiry);
+                        FoodDonation f(donationId, donorId, foodType, quantity, expiry, "Pending");
+                        donations.addDonation(f);
+                        cout << "\nDonation added successfully!\n";
+                    }
+                }
+                else if (sub == 2) {
+                    cout << "\n--- ALL DONATIONS ---\n";
+                    donations.displayDonations();
+                }
+                else if (sub == 3) {
+                    int id; cout << "\nEnter Donor ID: "; cin >> id;
+                    cout << "\n--- Donations by Donor " << id << " ---\n";
+                    donations.displayDonationsByDonor(id);
+                }
+                else if (sub == 4) {
+                    int id; cout << "\nEnter Donation ID: "; cin >> id;
+                    FoodDonation* d = donations.searchDonation(id);
+                    if (d) { d->setStatus("Completed"); cout << "\nStatus updated to Completed!\n"; }
+                    else cout << "\nDonation not found!\n";
+                }
+                else if (sub == 5) {
+                    string today; cout << "\nEnter today's date (YYYY-MM-DD): "; cin >> today;
+                    donations.removeExpiredDonations(today);
+                }
+                else if (sub == 6) {
+                    cout << "\nReturning to menu...\n";
+                }
+                else cout << "\nInvalid option!\n";
 
-            cin.ignore();
-            cout << "Enter Food Type: "; getline(cin, foodType);
-            cout << "Enter Quantity: "; cin >> quantity;
-            cin.ignore();
-            cout << "Enter Expiry Date: "; getline(cin, expiry);
+                if (sub != 6) {
+                    cout << "Returning to Main menu\n";
+                }
+            } while (sub != 6);
+        }
 
-            FoodDonation f(donationId, donorId, foodType, quantity, expiry);
-            donations.addDonation(f);
-            cout << "Donation added successfully.\n";
-        }
-        else if (choice2 == 3) {
-            cout << "\n--- All Donors ---\n";
-            donors.displayDonors();
-        }
-        else if (choice2 == 4) {
-            cout << "\n--- All Donations ---\n";
-            donations.displayDonations();
-        }
-        else if (choice2 == 5) {
-            int donorId;
-            cout << "Enter Donor ID: "; cin >> donorId;
-            cout << "\n--- Donations by Donor " << donorId << " ---\n";
-            donations.displayDonationsByDonor(donorId);
-        }
-        else if (choice2 == 6) {
-            int donorId;
-            cout << "Enter Donor ID to remove: "; cin >> donorId;
-            if (donors.removeDonor(donorId))
-                cout << "Donor removed successfully.\n";
-            else
-                cout << "Donor not found!\n";
-        }
-        else if (choice2 == 7) {
-            int donationId;
-            cout << "Enter Donation ID to mark as completed: ";
-            cin >> donationId;
+        // 3. REQUEST MANAGEMENT
+        else if (choice == 3) {
+            int sub;
+            do {
+                cout << "\n--- REQUEST MANAGEMENT ---\n\n";
+                cout << "1. Add New Request\n";
+                cout << "2. View Urgent Requests\n";
+                cout << "3. Fulfill Urgent Requests (Priority Order)\n";
+                cout << "4. View Pending Requests\n";
+                cout << "5. Rebook a Pending Request\n";   
+                cout << "6. Back to Main Menu\n\n";
+                cout << "Enter choice: ";
+                cin >> sub; cin.ignore();
 
-            FoodDonation* donation = donations.searchDonation(donationId);
-            if (donation) {
-                donation->setStatus("Completed");
-                cout << "Donation marked as completed successfully!\n";
-            }
-            else {
-                cout << "Donation not found!\n";
-            }
+                if (sub == 1) {
+                    string name, food, orgType, orgName, loc, date; int qty;
+                    cout << "\n=== ADD NEW REQUEST ===\n";
+                    donations.displayDonationItemsOnly();
+                    cout << "\n";
+                    cout << "Recipient Name: "; getline(cin, name);
+                    cout << "Food Type: "; getline(cin, food);
+                    cout << "Quantity: "; cin >> qty; cin.ignore();
+                    cout << "Organization Type (Hospital/OldAge Home/Charity): "; getline(cin, orgType);
+                    cout << "Organization Name: "; getline(cin, orgName);
+                    cout << "Location: "; getline(cin, loc);
+                    cout << "Request Date (YYYY-MM-DD): "; getline(cin, date);
+
+                    Request r(name, food, qty, orgType, orgName, loc, date);
+                    requestPQ.push(r);
+                    cout << "\nRequest added to URGENT queue successfully!\n";
+                }
+                else if (sub == 2) {
+                    cout << "\n=== URGENT REQUESTS (Highest Priority First) ===\n";
+                    if (requestPQ.isEmpty()) cout << "No urgent requests.\n\n";
+                    else requestPQ.display();
+                }
+                else if (sub == 3) {
+                    cout << "\n=== FULFILLING URGENT REQUESTS ===\n\n";
+                    int fulfilled = 0;
+                    while (!requestPQ.isEmpty()) {
+                        Request r = requestPQ.top(); requestPQ.pop();
+                        FoodDonation* match = donations.findMatchingDonation(r.foodType, r.quantity, r.requestDate, r);
+                        if (match) {
+                            match->reduceQuantity(r.quantity);
+                            r.isFulfilled = true;
+                            fulfilledStack.push(r);
+                            fulfilled++;
+                            cout << r.recipientName << " : " << r.quantity << " " << r.foodType
+                                << " delivered successfully!\n";
+                        }
+                        else {
+                            pendingQueue.enqueue(r);
+                            break;
+                        }
+                    }
+                    if (fulfilled > 0) {
+                        cout << "SUCCESS: " << fulfilled << " request(s) fulfilled and delivered!\n\n";
+                    }
+                   
+                    else if (!requestPQ.isEmpty())
+                        cout << "No requests could be fulfilled (no matching stock).\n\n";
+                    else
+                        cout << "No urgent requests to process.\n\n";
+                }
+                else if (sub == 4) {
+                    cout << "\n=== PENDING REQUESTS (Waiting for donations) ===\n";
+                    if (pendingQueue.isEmpty()) {
+                        cout << "No pending requests.\n\n";
+                    }
+                    else {
+                        Queue<Request> temp = pendingQueue;
+                        while (!temp.isEmpty()) {
+                            Request r = temp.frontItem(); temp.dequeue();
+                            cout << r.recipientName << " (" << r.organizationName << ") needs "
+                                << r.quantity << " " << r.foodType << " {Waiting}\n";
+                        }
+                        cout << endl;
+                    }
+                }
+                else if (sub == 5) {
+    if (pendingQueue.isEmpty()) {
+        cout << "\nNo pending requests to rebook.\n\n";
+    }
+    else {
+        cout << "\n=== REBOOK A PENDING REQUEST ===\n";
+        
+        // Step 1: Show list with numbers
+        Queue<Request> temp = pendingQueue;
+        vector<Request> requests;
+        int index = 1;
+        
+        cout << "Pending Requests:\n";
+        cout << "----------------------------------------\n";
+        while (!temp.isEmpty()) {
+            Request r = temp.frontItem(); 
+            temp.dequeue();
+            cout << index << ". " << r.recipientName 
+                 << " (" << r.organizationName << ") → "
+                 << r.quantity << " " << r.foodType 
+                 << " (Date: " << r.requestDate << ")\n";
+            requests.push_back(r);
+            index++;
         }
-        else if (choice2 == 8) {
-            cout << "Exiting system...\n";
+        cout << "----------------------------------------\n";
+
+        int choice;
+        cout << "\nEnter the number to rebook (1-" << (index-1) << ") or 0 to cancel: ";
+        cin >> choice; 
+        cin.ignore();
+
+        if (choice < 1 || choice >= index) {
+            cout << "\nRebook cancelled.\n\n";
         }
         else {
-            cout << "Invalid choice! Try again.\n";
+            // Save the old request to remove it later
+            Request oldRequest = requests[choice - 1];
+
+            // Step 2: Let user enter updated details
+            string name, food, orgType, orgName, loc, date;
+            int qty;
+
+            cout << "\n=== ENTER UPDATED REQUEST DETAILS ===\n";
+            donations.displayDonationItemsOnly();
+            cout << "\n";
+            cout << "Recipient Name       : "; getline(cin, name);
+            cout << "Food Type            : "; getline(cin, food);
+            cout << "Quantity             : "; cin >> qty; cin.ignore();
+            cout << "Organization Type    : "; getline(cin, orgType);
+            cout << "Organization Name    : "; getline(cin, orgName);
+            cout << "Location             : "; getline(cin, loc);
+            cout << "Request Date (YYYY-MM-DD): "; getline(cin, date);
+
+            // Create new updated request
+            Request newRequest(name, food, qty, orgType, orgName, loc, date);
+            requestPQ.push(newRequest);
+
+            // Step 3: Remove the old request from pending queue
+            Queue<Request> cleanedQueue;
+            temp = pendingQueue;
+            while (!temp.isEmpty()) {
+                Request r = temp.frontItem(); 
+                temp.dequeue();
+                // Skip the old one (compare name + org + date to be safe)
+                if (!(r.recipientName == oldRequest.recipientName &&
+                      r.organizationName == oldRequest.organizationName &&
+                      r.requestDate == oldRequest.requestDate)) {
+                    cleanedQueue.enqueue(r);
+                }
+            }
+            pendingQueue = cleanedQueue;
+
+            cout << "\nRequest successfully REBOOKED !\n";
+        }
+    }
+}
+                else if (sub == 6) {
+                    cout << "\nReturning to menu...\n";
+                }
+                else cout << "\nInvalid option!\n";
+
+            } while (sub != 6);
         }
 
-    } while (choice2 != 8);
-    return 0;
+        // 4. RECIPIENT REPORTS
+else if (choice == 4) {
+    cout << "\n==================================================" << endl;
+    cout << "       RECIPIENT REPORTS & STATISTICS            " << endl;
+    cout << "==================================================\n\n";
 
+    // FULFILLED REQUESTS (Latest First)
+    cout << "FOOD DELIVERED TO RECIPIENTS\n";
+    cout << "--------------------------------------------------\n";
+
+    if (fulfilledStack.isEmpty()) {
+        cout << "No food delivered yet.\n\n";
+    }
+    else {
+        Stack<Request> temp = fulfilledStack;
+        int count = 1;
+        while (!temp.isEmpty()) {
+            Request r = temp.top();
+            temp.pop();
+            cout << count++ << ". Delivered "
+                << r.quantity << " " << r.foodType
+                << " : " << r.recipientName
+                << " (" << r.organizationName
+                << ", " << r.organizationType << ")"
+                << " on " << r.requestDate << endl;
+        }
+        cout << endl;
+    }
+
+    // STATISTICS
+    cout << "CURRENT SYSTEM STATISTICS\n";
+    cout << "--------------------------------------------------\n";
+    cout << "Urgent Requests     : " << requestPQ.size() << endl;
+    cout << "Pending Requests    : " << pendingQueue.size() << endl;
+    cout << "Total Delivered     : " << fulfilledStack.size() << endl;
+    cout << "--------------------------------------------------\n";
+    cout << "Grand Total Requests: " << (requestPQ.size() + pendingQueue.size() + fulfilledStack.size()) << endl << endl;
+
+    cout << "Returning to menu...\n\n";
+}
+        // 5. EXIT
+        // ========================================
+        else if (choice == 5) {
+            cout << "\nThank you for using Food Redistribution System!\n";
+            cout << "Together, we are reducing hunger and food waste.\n\n";
+        }
+        else {
+            cout << "\nInvalid choice! Please enter 1 to 5.\n";
+            cout  << "Returning to Main menu\n";
+        }
+
+    } while (choice != 5);
+
+    return 0;
 }

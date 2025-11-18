@@ -3,7 +3,7 @@
 #include <vector>
 #include <queue>
 #include <unordered_map>
-
+#include <string>
 
 using namespace std;
 
@@ -48,6 +48,7 @@ public:
     int quantity;
     bool isUrgent;
     bool isFulfilled;
+    string requestDate;
     string organizationType;  
     string organizationName;  
     string location;          
@@ -55,8 +56,13 @@ public:
 
 
     Request(); // default constructor
-    Request(string name, string food, int qty, string orgType, string orgName, string loc);
+    Request(string name, string food, int qty, string orgType, string orgName, string loc, string date);
     bool operator<(const Request& other) const; // for priority queue
+    string getFoodType() const { return foodType; }
+    int getQuantity() const { return quantity; }
+    string getRequestDate() const { return requestDate; }
+    string getRecipientName() const { return recipientName; }
+
 };
 
 
@@ -129,6 +135,7 @@ public:
     Donor* searchDonor(int id);
     bool removeDonor(int id);
     void displayDonors() const;
+
 };
 
 // ------------------- FoodDonation Class -------------------
@@ -142,7 +149,7 @@ private:
     string status;       //Pending or Completed
 
 public:
-    FoodDonation(int dId = 0, int drId = 0, string type = "", int qty = 0, string date = "", string stat = "Pending");
+    FoodDonation(int dId = 0, int drId = 0, string type = "", int qty = 0, string date = "", string stat = "Pending" );
 
     int getDonationId() const;
     int getDonorId() const;
@@ -152,7 +159,9 @@ public:
     string getStatus() const;      
     void setStatus(string newStatus);
 
+    void reduceQuantity(int usedQty);
     void displayDonation() const;
+
 };
 
 // ------------------- Donation Node -------------------
@@ -177,6 +186,12 @@ public:
     FoodDonation* searchDonation(int donationId);
     void displayDonations() const;
     void displayDonationsByDonor(int donorId) const;  // Show all donations by a specific donor
+    void displayDonationItemsOnly() const;
+    void removeExpiredDonations(const string& todayDate);
+    FoodDonation* findMatchingDonation(const string& foodTypeNeeded,
+        int quantityNeeded,
+        const string& requestDate,
+        const Request& request);
 };
 
 //Include so compiler can see it at compile time (code above this, dont code after it)

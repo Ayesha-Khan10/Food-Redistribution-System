@@ -1,7 +1,19 @@
-#include "redistribution.hpp"
+﻿#include "redistribution.hpp"
 #include <stdexcept>
+#include "Redistribution.hpp"
 
 using namespace std;
+
+// trim function 
+string trim(const string& s) {
+    string t = s;
+    while (!t.empty() && (t.back() == ' ' || t.back() == '\r' || t.back() == '\n' || t.back() == '\t'))
+        t.pop_back();
+    size_t i = 0;
+    while (i < t.size() && (t[i] == ' ' || t[i] == '\r' || t[i] == '\n' || t[i] == '\t'))
+        i++;
+    return t.substr(i);
+}
 
 //Stack
 template <typename T>
@@ -20,10 +32,14 @@ T Stack<T>::top() {
 }
 
 template <typename T>
-bool Stack<T>::isEmpty() { return data.empty(); }
+bool Stack<T>::isEmpty() { 
+    return data.empty();
+}
 
 template <typename T>
-size_t Stack<T>::size() { return data.size(); }
+size_t Stack<T>::size() {
+    return data.size(); 
+}
 
 template <typename T>
 void Stack<T>::display() {
@@ -32,7 +48,9 @@ void Stack<T>::display() {
 }
 
 template <typename T>
-void Stack<T>::clear() { data.clear(); }
+void Stack<T>::clear() { 
+    data.clear();
+}
 
 
 //Queue
@@ -95,7 +113,7 @@ void Queue<T>::clear() {
     front = 0;
     rear = 0;
 }
-
+//----------------RequestClass--------------
 Request::Request() {
     recipientName = "";
     foodType = "";
@@ -105,9 +123,10 @@ Request::Request() {
     location = "";
     priorityLevel = 3;
     isFulfilled = false;
+    requestDate = "";
 }
 
-Request::Request(string name, string food, int qty, string orgType, string orgName, string loc) {
+Request::Request(string name, string food, int qty, string orgType, string orgName, string loc, string date) {
     recipientName = name;
     foodType = food;
     quantity = qty;
@@ -115,10 +134,17 @@ Request::Request(string name, string food, int qty, string orgType, string orgNa
     organizationName = orgName;
     location = loc;
     isFulfilled = false;
+    requestDate = date;
+    isUrgent = false;
 
-    if (orgType == "Hospital") priorityLevel = 1;
-    else if (orgType == "OldAgeHome") priorityLevel = 2;
-    else priorityLevel = 3;
+    for (char& c : organizationType) c = toupper(c);
+
+    if (organizationType == "HOSPITAL") priorityLevel = 1;
+    else if (organizationType == "OLDAGE HOME") priorityLevel = 2;
+    else if (organizationType == "CHARITY") priorityLevel = 3;
+    else priorityLevel = 4;
+
+    isUrgent = (priorityLevel == 1);
 }
 
 bool Request::operator<(const Request& other) const {
@@ -128,14 +154,13 @@ bool Request::operator<(const Request& other) const {
 template <>
 void Queue<Request>::display() {
     for (int i = front; i < rear; i++) {
-        cout << i << ". " << arr[i].recipientName << " wants "
+        cout << i << ". " << arr[i].recipientName << " from " << arr[i].organizationName << " (" << arr[i].organizationType << ") wants "
             << arr[i].quantity << " of " << arr[i].foodType
             << (arr[i].isUrgent ? " [URGENT]" : "")
             << (arr[i].isFulfilled ? " [FULFILLED]" : " [PENDING]")
             << endl;
     }
 }
-
 
 //PriorityQueue
 template <typename T>
@@ -190,7 +215,6 @@ void Stack<Request>::display() {
             << " [Priority: " << r.priorityLevel << "]\n";
     }
 }
-
 
 //Graph
 template <typename T>
@@ -388,6 +412,7 @@ void FoodDonation::setStatus(string newStatus)
     status = newStatus;
 }
 
+
 void FoodDonation::displayDonation() const
 {
     cout << "Donation ID: " << donationId
@@ -397,6 +422,14 @@ void FoodDonation::displayDonation() const
         << ", Expiry: " << expiryDate
         << ", Status: " << status
         << endl;
+}
+
+void FoodDonation::reduceQuantity(int usedQty) {
+    quantity -= usedQty;
+    if (quantity <= 0) {
+        quantity = 0;
+        status = "Completed";
+    }
 }
 
 // ---------------- DonationNode ----------------
@@ -477,6 +510,7 @@ void DonationLinkedList::displayDonations() const
     }
 }
 
+
 void DonationLinkedList::displayDonationsByDonor(int donorId) const
 {
     DonationNode* temp = head;
@@ -492,4 +526,106 @@ void DonationLinkedList::displayDonationsByDonor(int donorId) const
     }
     if (!found)
         cout << "No donations found for donor ID: " << donorId << endl;
+}
+
+// to covert in lowercase
+string toLower(const string& s) {
+    string result = s;
+    for (char& c : result) {
+        c = tolower(c);
+    }
+    return result;
+}
+FoodDonation* DonationLinkedList::findMatchingDonation(const string& foodTypeNeeded, int quantityNeeded, const string& requestDate, const Request& request)
+{
+    if (head == nullptr) {
+        return nullptr;
+    }
+
+    string neededLower = toLower(foodTypeNeeded);
+    DonationNode* temp = head;
+
+    while (temp != nullptr) {
+        FoodDonation& d = temp->data;
+
+        // Food type mismatch
+        if (toLower(d.getFoodType()) != neededLower) {
+            temp = temp->next;
+            continue;
+        }
+
+        // Insufficient quantity
+        if (d.getQuantity() < quantityNeeded) {
+            cout <<  request.recipientName
+                << " (" << request.organizationName
+                << "): insufficient quantity (need: " << quantityNeeded
+                << ", available: " << d.getQuantity() << ")\n";
+            temp = temp->next;
+            continue;
+        }
+
+        // Not pending
+        if (d.getStatus() != "Pending") {
+            cout << request.recipientName
+                << " (" << request.organizationName
+                << "): not available (status: " << d.getStatus() << ")\n";
+            temp = temp->next;
+            continue;
+        }
+
+        // Expired
+        string expiry = trim(d.getExpiryDate());
+        string reqDate = trim(requestDate);
+        if (expiry <= reqDate) {
+            cout << request.recipientName
+                << " (" << request.organizationName
+                << "): expired (" << expiry << " <= " << reqDate << ")\n";
+            temp = temp->next;
+            continue;
+        }
+
+        return &d;
+    }
+    return nullptr;
+}
+void DonationLinkedList::displayDonationItemsOnly() const {
+    DonationNode* temp = head;
+    if (!temp) {
+        cout << "No donations available.\n";
+        return;
+    }
+    cout << "Available Food Items:\n";
+    while (temp) {
+        cout << "- " << temp->data.getFoodType();
+        cout << " : " << temp->data.getQuantity() << endl;
+        temp = temp->next;
+    }
+}
+void DonationLinkedList::removeExpiredDonations(const string& todayDate) {
+    DonationNode* temp = head;
+    DonationNode* prev = nullptr;
+
+    while (temp != nullptr) {
+        // expired if expiry <= today
+        if (temp->data.getExpiryDate() <= todayDate) {
+            cout << "Removing expired donation: " << temp->data.getFoodType()
+                << " (Expiry: " << temp->data.getExpiryDate() << ")\n";
+
+            // remove node
+            if (prev == nullptr) {
+                head = temp->next;
+                delete temp;
+                temp = head;
+            }
+            else {
+                prev->next = temp->next;
+                delete temp;
+                temp = prev->next;
+            }
+        }
+        else {
+            prev = temp;
+            temp = temp->next;
+        }
+    }
 }
