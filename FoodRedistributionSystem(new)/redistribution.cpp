@@ -1,4 +1,8 @@
 ﻿#include <stdexcept>
+#include <fstream>      // for ifstream, ofstream
+#include <sstream>      // for stringstream
+#include <string>       // for string
+#include <iostream>     // cout, cin
 #include "Redistribution.hpp"
 
 using namespace std;
@@ -51,7 +55,58 @@ void Stack<T>::clear() {
     data.clear();
 }
 
+// save recent fullfilled request
+void saveSingleFulfilledRequest(const Request& r, const std::string& filename) {
+    std::ofstream out(filename, std::ios::app);  // append mode
 
+    if (!out) {
+        std::cout << "Error opening file for saving!\n";
+        return;
+    }
+
+    out << r.recipientName << ","
+        << r.foodType << ","
+        << r.quantity << ","
+        << r.organizationType << ","
+        << r.organizationName << ","
+        << r.location << ","
+        << r.priorityLevel << ","
+        << r.isFulfilled << ","
+        << r.requestDate
+        << "\n";
+
+    out.close();
+}
+// load fullfilled requests
+void loadFulfilledRequests(Stack<Request>& fulfilled, const std::string& filename) {
+    std::ifstream in(filename);
+    if (!in) return;
+
+    fulfilled.clear();
+
+    std::string line;
+    while (getline(in, line)) {
+        std::stringstream ss(line);
+        std::string recipient, food, orgType, orgName, loc, date, tempQty, tempPriority, tempFulfilled;
+
+        getline(ss, recipient, ',');
+        getline(ss, food, ',');
+        getline(ss, tempQty, ',');
+        getline(ss, orgType, ',');
+        getline(ss, orgName, ',');
+        getline(ss, loc, ',');
+        getline(ss, tempPriority, ',');
+        getline(ss, tempFulfilled, ',');
+        getline(ss, date, ',');
+
+        Request r(recipient, food, std::stoi(tempQty), orgType, orgName, loc, date);
+        r.isFulfilled = (tempFulfilled == "1" || tempFulfilled == "true");
+        r.priorityLevel = std::stoi(tempPriority);
+
+        fulfilled.push(r);
+    }
+    in.close();
+}
 //Queue
 template <typename T>
 Queue<T>::Queue() {
@@ -112,7 +167,7 @@ void Queue<T>::clear() {
     front = 0;
     rear = 0;
 }
-//----------------RequestClass--------------
+//----------------RequestClass---------------
 Request::Request() {
     recipientName = "";
     foodType = "";
@@ -161,6 +216,7 @@ void Queue<Request>::display() {
     }
 }
 
+
 //PriorityQueue
 template <typename T>
 void PriorityQueue<T>::push(const T& value) { pq.push(value); }
@@ -204,6 +260,119 @@ void PriorityQueue<Request>::display() {
         temp.pop();
     }
 }
+
+//save Pending Requests
+void savePendingRequests(Queue<Request>& q, const std::string& filename) {
+    std::ofstream out(filename);
+    if (!out) { std::cout << "Cannot open file: " << filename << "\n"; return; }
+
+    Queue<Request> temp = q; // copy so original queue is not modified
+
+    while (!temp.isEmpty()) {
+        Request r = temp.frontItem();
+        temp.dequeue();
+        out << r.recipientName << ","
+            << r.foodType << ","
+            << r.quantity << ","
+            << r.organizationType << ","
+            << r.organizationName << ","
+            << r.location << ","
+            << r.requestDate << ","
+            << r.isFulfilled << ","
+            << r.priorityLevel << "\n";
+    }
+    out.close();
+}
+// load pending requests
+void loadPendingRequests(Queue<Request>& q, const std::string& filename) {
+    std::ifstream in(filename);
+    if (!in) return;
+
+    q.clear();
+    std::string line;
+    while (getline(in, line)) {
+        std::stringstream ss(line);
+        std::string name, food, orgType, orgName, loc, date, fulfilledStr, prioStr;
+        int qty, prio; bool fulfilled;
+
+        getline(ss, name, ',');
+        getline(ss, food, ',');
+        ss >> qty; ss.ignore();
+        getline(ss, orgType, ',');
+        getline(ss, orgName, ',');
+        getline(ss, loc, ',');
+        getline(ss, date, ',');
+        getline(ss, fulfilledStr, ',');
+        getline(ss, prioStr, ',');
+
+        fulfilled = (fulfilledStr == "1" || fulfilledStr == "true");
+        prio = stoi(prioStr);
+
+        Request r(name, food, qty, orgType, orgName, loc, date);
+        r.isFulfilled = fulfilled;
+        r.priorityLevel = prio;
+
+        q.enqueue(r);
+    }
+    in.close();
+}
+
+// save Urgent Requests
+void saveUrgentRequests(PriorityQueue<Request>& pq, const std::string& filename) {
+    std::ofstream out(filename);
+    if (!out) { std::cout << "Cannot open file: " << filename << "\n"; return; }
+
+    PriorityQueue<Request> temp = pq; // copy to avoid modifying original
+
+    while (!temp.isEmpty()) {
+        Request r = temp.top();
+        temp.pop();
+        out << r.recipientName << ","
+            << r.foodType << ","
+            << r.quantity << ","
+            << r.organizationType << ","
+            << r.organizationName << ","
+            << r.location << ","
+            << r.requestDate << ","
+            << r.isFulfilled << ","
+            << r.priorityLevel << "\n";
+    }
+    out.close();
+}
+// load urgent requests
+void loadUrgentRequests(PriorityQueue<Request>& pq, const std::string& filename) {
+    std::ifstream in(filename);
+    if (!in) return;
+
+    pq = PriorityQueue<Request>(); // reset
+    std::string line;
+    while (getline(in, line)) {
+        std::stringstream ss(line);
+        std::string name, food, orgType, orgName, loc, date, fulfilledStr, prioStr;
+        int qty, prio; bool fulfilled;
+
+        getline(ss, name, ',');
+        getline(ss, food, ',');
+        ss >> qty; ss.ignore();
+        getline(ss, orgType, ',');
+        getline(ss, orgName, ',');
+        getline(ss, loc, ',');
+        getline(ss, date, ',');
+        getline(ss, fulfilledStr, ',');
+        getline(ss, prioStr, ',');
+
+        fulfilled = (fulfilledStr == "1" || fulfilledStr == "true");
+        prio = stoi(prioStr);
+
+        Request r(name, food, qty, orgType, orgName, loc, date);
+        r.isFulfilled = fulfilled;
+        r.priorityLevel = prio;
+
+        pq.push(r);
+    }
+    in.close();
+}
+
 //display fullfiled stack 
 template <>
 void Stack<Request>::display() {
@@ -371,6 +540,45 @@ void DonorLinkedList::displayDonors() const
     }
 }
 
+void DonorLinkedList::saveToFile(const string& filename) {
+    ofstream out(filename);
+    DonorNode* temp = head;
+
+    while (temp) {
+        out << temp->data.getDonorId() << ","
+            << temp->data.getDonorName() << ","
+            << temp->data.getContactInfo() << ","
+            << temp->data.getDonorType() << ","
+            << temp->data.getAddress() << "\n";
+        temp = temp->next;
+    }
+
+    out.close();
+}
+void DonorLinkedList::loadFromFile(const string& filename) {
+    ifstream in(filename);
+    if (!in) return;
+
+    head = nullptr;
+    string line;
+
+    while (getline(in, line)) {
+        stringstream ss(line);
+
+        string id, name, contact, type, addr;
+
+        getline(ss, id, ',');
+        getline(ss, name, ',');
+        getline(ss, contact, ',');
+        getline(ss, type, ',');
+        getline(ss, addr, ',');
+
+        Donor d(stoi(id), name, contact, type, addr);
+        addDonor(d);
+    }
+
+    in.close();
+}
 // ---------------- FoodDonation ----------------
 FoodDonation::FoodDonation(int dId, int drId, string type, int qty, string date, string stat)
 {
@@ -508,8 +716,6 @@ void DonationLinkedList::displayDonations() const
         temp = temp->next;
     }
 }
-
-
 void DonationLinkedList::displayDonationsByDonor(int donorId) const
 {
     DonationNode* temp = head;
@@ -526,7 +732,6 @@ void DonationLinkedList::displayDonationsByDonor(int donorId) const
     if (!found)
         cout << "No donations found for donor ID: " << donorId << endl;
 }
-
 // to covert in lowercase
 string toLower(const string& s) {
     string result = s;
@@ -628,6 +833,47 @@ void DonationLinkedList::removeExpiredDonations(const string& todayDate) {
         }
 
     }
+}
+void DonationLinkedList::saveToFile(const string& filename) {
+    ofstream out(filename);
+    DonationNode* temp = head;
+
+    while (temp) {
+        out << temp->data.getDonationId() << ","
+            << temp->data.getDonorId() << ","
+            << temp->data.getFoodType() << ","
+            << temp->data.getQuantity() << ","
+            << temp->data.getExpiryDate() << ","
+            << temp->data.getStatus() << "\n";
+        temp = temp->next;
+    }
+
+    out.close();
+}
+void DonationLinkedList::loadFromFile(const string& filename) {
+    ifstream in(filename);
+    if (!in) return;
+
+    head = nullptr;
+    string line;
+
+    while (getline(in, line)) {
+        stringstream ss(line);
+
+        string did, donorid, food, qty, exp, stat;
+
+        getline(ss, did, ',');
+        getline(ss, donorid, ',');
+        getline(ss, food, ',');
+        getline(ss, qty, ',');
+        getline(ss, exp, ',');
+        getline(ss, stat, ',');
+
+        FoodDonation d(stoi(did), stoi(donorid), food, stoi(qty), exp, stat);
+        addDonation(d);
+    }
+
+    in.close();
 }
 
 //Roads

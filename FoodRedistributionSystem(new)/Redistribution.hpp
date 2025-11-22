@@ -21,7 +21,13 @@ public:
     size_t size();
     void display();
     void clear();
+
+    // Add this to allow file handling
+    std::vector<T>& getData() { return data; }
+    const std::vector<T>& getData() const { return data; }
 };
+
+
 
 //Queue Template
 template <typename T>
@@ -39,7 +45,14 @@ public:
     size_t size();
     void display();
     void clear();
+
+    int getFront() const { return front; }
+    int getRear() const { return rear; }
+    T* getArray() { return arr; }  // returns internal array for file handling
 };
+
+
+
 //Request Class
 class Request {
 public:
@@ -80,6 +93,7 @@ public:
     size_t size();
     void display();
 };
+
 
 //Graph 
 template <typename T>
@@ -135,6 +149,9 @@ public:
     Donor* searchDonor(int id);
     bool removeDonor(int id);
     void displayDonors() const;
+
+    void saveToFile(const string& filename);
+    void loadFromFile(const string& filename);
 
 };
 
@@ -192,6 +209,9 @@ public:
         int quantityNeeded,
         const string& requestDate,
         const Request& request);
+
+    void saveToFile(const string& filename);
+    void loadFromFile(const string& filename);
 };
 
 //roads
