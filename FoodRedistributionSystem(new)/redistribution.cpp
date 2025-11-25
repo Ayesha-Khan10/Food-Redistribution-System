@@ -402,7 +402,7 @@ void Graph<T>::addNode(T node) {
     }
 }
 template <typename T>
-void Graph<T>::display() {
+void Graph<T>::display()                                {
     for (auto& node : adj) {
         cout << node.first << " -> ";
         for (auto& edge : node.second)
@@ -946,5 +946,46 @@ void Roads<T>::shortestPath(T start, T end) {
         }
         cout << "(Distance: " << dist[end] << ")" << endl;
     }
+}
+
+string karachiLocations[] = {
+    "Clifton", "Saddar", "PECHS", "Gulshan-e-Iqbal", "Korangi",
+    "North Nazimabad", "Malir", "Lyari", "Defense", "Bahadurabad",
+    "Shahrah-e-Faisal", "Gulberg", "Landhi", "SITE", "Buffer Zone"
+};
+const int NUM_LOCATIONS = 15;
+
+// Create Roads object
+Roads<string> karachiRoads;
+
+// Initialize locations and roads
+void initializeKarachiMap() {
+    // Add all locations
+    for (int i = 0; i < NUM_LOCATIONS; i++) {
+        karachiRoads.addLocation(karachiLocations[i]);
+    }
+
+    // Add some sample roads (distances in km)
+    karachiRoads.addRoad("Clifton", "Saddar", 8);
+    karachiRoads.addRoad("Clifton", "Defense", 6);
+    karachiRoads.addRoad("Saddar", "PECHS", 5);
+    karachiRoads.addRoad("PECHS", "Gulshan-e-Iqbal", 7);
+    karachiRoads.addRoad("Gulshan-e-Iqbal", "Korangi", 10);
+    karachiRoads.addRoad("North Nazimabad", "Saddar", 12);
+    karachiRoads.addRoad("Malir", "Landhi", 9);
+    karachiRoads.addRoad("Lyari", "Saddar", 4);
+    karachiRoads.addRoad("Bahadurabad", "Shahrah-e-Faisal", 3);
+    karachiRoads.addRoad("Defense", "PECHS", 6);
+    karachiRoads.addRoad("Landhi", "Korangi", 8);
+    karachiRoads.addRoad("Buffer Zone", "North Nazimabad", 5);
+    karachiRoads.addRoad("SITE", "Landhi", 7);
+    karachiRoads.addRoad("Gulberg", "Saddar", 6);
+}
+
+// Example: when fulfilling requests
+void deliverRequestWithDistance(Donor* donor, Request& r) {
+    cout << "Calculating shortest path from donor at " << donor->getAddress()
+        << " to recipient at " << r.location << "...\n";
+    karachiRoads.shortestPath(donor->getAddress(), r.location);
 }
 

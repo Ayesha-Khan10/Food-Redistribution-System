@@ -11,9 +11,15 @@ PriorityQueue<Request> requestPQ;
 Queue<Request> pendingQueue;
 Stack<Request> fulfilledStack;
 
+vector<string> predefinedLocations = {
+	"Clifton", "Saddar", "PECHS", "Gulshan-e-Iqbal", "Korangi",
+	"North Nazimabad", "Malir", "Lyari", "Defense", "Bahadurabad",
+	"Shahrah-e-Faisal", "Gulberg", "Landhi", "SITE", "Buffer Zone"
+};
+
 
 int main() {
-
+	initializeKarachiMap();
 	donors.loadFromFile("donors.txt");
 	donations.loadFromFile("donations.txt");
 	loadFulfilledRequests(fulfilledStack, "fulfilled_request.txt");
@@ -62,7 +68,15 @@ int main() {
 					getline(cin, name);
 					cout << "Contact Info: "; getline(cin, contact);
 					cout << "Donor Type (Indivisual / Organization): "; getline(cin, type);
-					cout << "Address: "; getline(cin, address);
+					cout << "Select Donor Location:\n";
+					for (int i = 0; i < predefinedLocations.size(); i++)
+						cout << i + 1 << ". " << predefinedLocations[i] << endl;
+
+					int locChoice;
+					cin >> locChoice; cin.ignore();
+					locChoice = max(1, min(locChoice, (int)predefinedLocations.size()));
+
+					address = predefinedLocations[locChoice - 1];
 					Donor d(id, name, contact, type, address);
 					donors.addDonor(d);
 					cout << "Donor added successfully!\n";
@@ -175,9 +189,16 @@ int main() {
 					cout << "Quantity: "; cin >> qty; cin.ignore();
 					cout << "Organization Type (Hospital/OldAge Home/Charity): "; getline(cin, orgType);
 					cout << "Organization Name: "; getline(cin, orgName);
-					cout << "Location: "; getline(cin, loc);
 					cout << "Request Date (YYYY-MM-DD): "; getline(cin, date);
+					cout << "Select Request Location:\n";
+					for (int i = 0; i < predefinedLocations.size(); i++)
+						cout << i + 1 << ". " << predefinedLocations[i] << endl;
 
+					int reqChoice;
+					cin >> reqChoice; cin.ignore();
+					reqChoice = max(1, min(reqChoice, (int)predefinedLocations.size()));
+
+					loc = predefinedLocations[reqChoice - 1];
 					Request r(name, food, qty, orgType, orgName, loc, date);
 					requestPQ.push(r);
 					cout << "\nRequest added to URGENT queue successfully!\n";
@@ -198,6 +219,14 @@ int main() {
 							r.isFulfilled = true;
 							fulfilledStack.push(r);
 							saveSingleFulfilledRequest(r, "fulfilled_request.txt");
+
+							
+							Donor* donor = donors.searchDonor(match->getDonorId());
+							if (donor) {
+								Roads<string> cityRoads;
+								cityRoads.shortestPath(donor->getAddress(), r.location);
+							}
+
 							fulfilled++;
 							cout << r.recipientName << " : " << r.quantity << " " << r.foodType
 								<< " delivered successfully!\n";
