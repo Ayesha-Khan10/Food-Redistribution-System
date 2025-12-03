@@ -881,7 +881,6 @@ template <typename T>
 void Roads<T>::addLocation(T location) {
     if (roadMap.find(location) == roadMap.end()) {
         roadMap[location] = {};
-        cout << "Location added: " << location << endl;
     }
     else {
         cout << "Location already exists: " << location << endl;
@@ -890,9 +889,13 @@ void Roads<T>::addLocation(T location) {
 
 template <typename T>
 void Roads<T>::addRoad(T from, T to, int distance) {
+	Graph<T> graph;
     roadMap[from].push_back({ to, distance });
     roadMap[to].push_back({ from, distance });
+
+    graph.addEdge(from, to, distance);                  
 }
+
 
 template <typename T>
 void Roads<T>::shortestPath(T start, T end) {
@@ -965,7 +968,7 @@ void initializeKarachiMap() {
         karachiRoads.addLocation(karachiLocations[i]);
     }
 
-    // Add some sample roads (distances in km)
+    // Add some sample roads distances in km
     karachiRoads.addRoad("Clifton", "Saddar", 8);
     karachiRoads.addRoad("Clifton", "Defense", 6);
     karachiRoads.addRoad("Saddar", "PECHS", 5);
@@ -988,4 +991,3 @@ void deliverRequestWithDistance(Donor* donor, Request& r) {
         << " to recipient at " << r.location << "...\n";
     karachiRoads.shortestPath(donor->getAddress(), r.location);
 }
-
