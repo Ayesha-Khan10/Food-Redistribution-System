@@ -177,7 +177,9 @@ Request::Request() {
     location = "";
     priorityLevel = 3;
     isFulfilled = false;
+    isUrgent = false; 
     requestDate = "";
+    skipReason = "";
 }
 
 Request::Request(string name, string food, int qty, string orgType, string orgName, string loc, string date) {
@@ -190,6 +192,7 @@ Request::Request(string name, string food, int qty, string orgType, string orgNa
     isFulfilled = false;
     requestDate = date;
     isUrgent = false;
+    skipReason = "";
 
     for (char& c : organizationType) c = toupper(c);
 
@@ -943,11 +946,11 @@ void Roads<T>::shortestPath(T start, T end) {
         cout << "No path from " << start << " to " << end << endl;
     }
     else {
-        cout << "Shortest path from " << start << " to " << end << ": ";
+        cout << "[Shortest path from " << start << " to " << end << ": ";
         for (const auto& loc : path) {
             cout << loc << " -> ";
         }
-        cout << "(Distance: " << dist[end] << ")" << endl;
+        cout << "(Distance: " << dist[end] << ") ]" << endl;
     }
 }
 

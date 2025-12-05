@@ -7,3 +7,11 @@ idk,rice,3,HOSPITAL,idk,SITE,1,1,2025-12-01
 Sana,Water,50,CHARITY,Edhi Center,Clifton,3,1,2025-12-25
 Hamza,Daal,30,OLDAGE HOME,Bait-ul-Sukoon,Korangi,2,1,2025-12-27
 Sana,Water,50,CHARITY,Edhi Center,Clifton,3,1,2025-12-25
+farhan,daal,10,CHARITY,xyz,Saddar,3,1,2025-11-09
+Faryal,Rice,20,HOSPITAL,Civil,Bahadurabad,1,1,2025-11-10
+Ali,rice,20,CHARITY,ss,Buffer Zone,3,1,2025-10-01
+ali,rice,10,CHARITY,dgs,Clifton,3,1,2025-10-10
+Afaq,rice,2,CHARITY,OSi,Buffer Zone,3,1,2025-11-20
+Afaq,rice,20,HOSPITAL,jdc,Gulberg,1,1,2025-11-10
+Azan,rice,5,OLDAGE HOME,s,Gulberg,2,1,2025-10-11
+sara,rice,20,JDC,jdc,Clifton,4,1,2025-11-10

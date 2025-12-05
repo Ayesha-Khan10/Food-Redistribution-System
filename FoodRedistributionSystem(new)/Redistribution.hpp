@@ -65,7 +65,8 @@ public:
     string organizationType;  
     string organizationName;  
     string location;          
-    int priorityLevel;        
+    int priorityLevel;
+    string skipReason;
 
 
     Request(); // default constructor
@@ -74,6 +75,7 @@ public:
     string getFoodType() const { return foodType; }
     int getQuantity() const { return quantity; }
     string getRequestDate() const { return requestDate; }
+    string getskipReason() { string skipReason = ""; };
     string getRecipientName() const { return recipientName; }
 
 };
@@ -197,7 +199,7 @@ private:
 
 public:
     DonationLinkedList();
-
+    DonationNode* getHead() const { return head; }
     void addDonation(FoodDonation d);
     bool removeDonation(int donationId);
     FoodDonation* searchDonation(int donationId);

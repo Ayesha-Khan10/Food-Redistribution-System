@@ -294,42 +294,94 @@ int main() {
 					else requestPQ.display();
 				}
 				else if (sub == 3) {
-					cout << "\n=== FULFILLING URGENT REQUESTS ===\n\n";
+					cout << "\n=== FULFILLING URGENT REQUESTS (Highest Priority First) ===\n\n";
+
+					if (requestPQ.isEmpty()) {
+						cout << "No urgent requests to process.\n\n";
+						continue;
+					}
+
 					int fulfilled = 0;
+					int movedToPending = 0;
+					Roads<string> cityRoads;
+
+					// We'll process all urgent requests without stopping
 					while (!requestPQ.isEmpty()) {
-						Request r = requestPQ.top(); requestPQ.pop();
+						Request r = requestPQ.top();
+						requestPQ.pop();
+
 						FoodDonation* match = donations.findMatchingDonation(r.foodType, r.quantity, r.requestDate, r);
+
 						if (match) {
+							// SUCCESS: Fulfill
 							match->reduceQuantity(r.quantity);
 							r.isFulfilled = true;
 							fulfilledStack.push(r);
 							saveSingleFulfilledRequest(r, "fulfilled_request.txt");
 
-							
 							Donor* donor = donors.searchDonor(match->getDonorId());
-							if (donor) {	
-								cout << "DEBUG: Donor = " << donor->getAddress()
-									<< " | Request = " << r.location << "\n";
-								cityRoads.shortestPath(donor->getAddress(), r.location);
-							}
+							string donorLoc = donor ? donor->getAddress() : "Unknown Location";
+
+							cout << "FULFILLED -> " << r.recipientName
+								<< " (" << r.organizationType << ", " << r.location << ")\n";
+							cout << "           Delivered: " << r.quantity << " " << r.foodType << "\n";
+							cout << "           From donor in: " << donorLoc << "\n";
+							cout << "           Route: ";
+							cityRoads.shortestPath(donorLoc, r.location);
+							cout << "\n\n";
 
 							fulfilled++;
-							cout << r.recipientName << " : " << r.quantity << " " << r.foodType
-								<< " delivered successfully!\n";
 						}
 						else {
+							// FAILURE: Find exact reason
+							string reason = "No matching donation found";
+
+							string needed = toLower(r.foodType);
+							DonationNode* temp = donations.getHead();
+							bool foundType = false;
+
+							while (temp) {
+								FoodDonation& d = temp->data;
+								if (toLower(d.getFoodType()) == needed) {
+									foundType = true;
+									if (d.getQuantity() < r.quantity) {
+										reason = "Insufficient quantity (Available: " + to_string(d.getQuantity()) +
+											", Needed: " + to_string(r.quantity) + ")";
+										break;
+									}
+									if (d.getStatus() != "Pending") {
+										reason = "Donation already used";
+										break;
+									}
+									if (trim(d.getExpiryDate()) <= trim(r.requestDate)) {
+										reason = "Donation expired (Expiry: " + d.getExpiryDate() + ")";
+										break;
+									}
+								}
+								temp = temp->next;
+							}
+							if (!foundType) {
+								reason = "Food type '" + r.foodType + "' not in stock";
+							}
+
+							r.skipReason = reason;
 							pendingQueue.enqueue(r);
-							break;
+
+							cout << "NOT FULFILLED -> " << r.recipientName
+								<< " (" << r.organizationType << ", " << r.location << ")\n";
+							cout << "           Needed: " << r.quantity << " " << r.foodType << "\n";
+							cout << "           REASON: " << reason << "\n\n";
+
+							movedToPending++;
 						}
 					}
-					if (fulfilled > 0) {
-						cout << "SUCCESS: " << fulfilled << " request(s) fulfilled and delivered!\n\n";
-					}
 
-					else if (!requestPQ.isEmpty())
-						cout << "No requests could be fulfilled (no matching stock).\n\n";
-					else
-						cout << "No urgent requests to process.\n\n";
+					// Final Summary
+					cout << "==================================================\n";
+					cout << "FULFILLMENT COMPLETED\n";
+					cout << "   Successfully Delivered : " << fulfilled << " request(s)\n";
+					cout << "   Moved to Pending       : " << movedToPending << " request(s)\n";
+					cout << "==================================================\n\n";
 				}
 				else if (sub == 4) {
 					cout << "\n=== PENDING REQUESTS (Waiting for donations) ===\n";
@@ -338,10 +390,14 @@ int main() {
 					}
 					else {
 						Queue<Request> temp = pendingQueue;
+						int index = 1;
 						while (!temp.isEmpty()) {
-							Request r = temp.frontItem(); temp.dequeue();
-							cout << r.recipientName << " (" << r.organizationName << ") needs "
-								<< r.quantity << " " << r.foodType << " {Waiting}\n";
+							Request r = temp.frontItem();
+							temp.dequeue();
+							cout << index++ << ". " << r.recipientName
+								<< " (" << r.organizationName << ", " << r.organizationType << ") needs "
+								<< r.quantity << " " << r.foodType
+								<< " -> [Reason: " << (r.skipReason.empty() ? "Awaiting donation" : r.skipReason) << "]\n";
 						}
 						cout << endl;
 					}
@@ -365,7 +421,7 @@ int main() {
 							Request r = temp.frontItem();
 							temp.dequeue();
 							cout << index << ". " << r.recipientName
-								<< " (" << r.organizationName << ") → "
+								<< " (" << r.organizationName << ") -> "
 								<< r.quantity << " " << r.foodType
 								<< " (Date: " << r.requestDate << ")\n";
 							requests.push_back(r);
@@ -392,20 +448,20 @@ int main() {
 							cout << "\n=== ENTER UPDATED REQUEST DETAILS ===\n";
 							donations.displayDonationItemsOnly();
 							cout << "\n";
-							cout << "Recipient Name       : "; getline(cin, name);
-							cout << "Food Type            : "; getline(cin, food);
-							cout << "Quantity             : "; cin >> qty; cin.ignore();
-							cout << "Organization Type    : "; getline(cin, orgType);
-							cout << "Organization Name    : "; getline(cin, orgName);
-							cout << "Location             : ";
+							cout << "Recipient Name: "; getline(cin, name);
+							cout << "Food Type: "; getline(cin, food);
+							cout << "Quantity: "; cin >> qty; cin.ignore();
+							cout << "Organization Type: "; getline(cin, orgType);
+							cout << "Organization Name: "; getline(cin, orgName);
+							cout << "Request Date (YYYY-MM-DD): "; getline(cin, date);
+							cout << "Select Location:\n";
 							for (int i = 0; i < predefinedLocations.size(); i++) {
 								cout << i + 1 << ". " << predefinedLocations[i] << endl;
-								int locChoice;
-								cin >> locChoice; cin.ignore();
-								locChoice = max(1, min(locChoice, (int)predefinedLocations.size()));
 							}
-							cout << "Request Date (YYYY-MM-DD): "; getline(cin, date);
-
+							int locChoice;
+							cin >> locChoice; cin.ignore();
+							locChoice = max(1, min(locChoice, (int)predefinedLocations.size()));
+							loc = predefinedLocations[locChoice - 1];
 							// Create new updated request
 							Request newRequest(name, food, qty, orgType, orgName, loc, date);
 							requestPQ.push(newRequest);
