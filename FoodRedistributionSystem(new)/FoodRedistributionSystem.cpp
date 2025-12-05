@@ -17,7 +17,6 @@ vector<string> predefinedLocations = {
 	"Shahrah-e-Faisal", "Gulberg", "Landhi", "SITE", "Buffer Zone"
 };
 
-
 int main() {
 	Roads<string> cityRoads;
 	initializeKarachiMap();
@@ -28,9 +27,9 @@ int main() {
 
 	loadPendingRequests(pendingQueue, "pending.txt");
 	loadUrgentRequests(requestPQ, "urgent.txt");
-	cout << "\n===== RUNNING HARD-CODED TEST CASES =====\n\n";
+/*	cout << "\n===== RUNNING HARD-CODED TEST CASES =====\n\n";
 
-	initializeKarachiMap();
+	initializeKarachiMap()*/;
 
 	//start of hardcoded test cases
 	// ---------------------------------------------
@@ -125,7 +124,8 @@ int main() {
 		cout << "2. Donation Management" << endl;
 		cout << "3. Request Management" << endl;
 		cout << "4. Recipient Reports" << endl;
-		cout << "5. Exit" << endl << endl;
+		cout << "5. Donor & Donation Statistics" << endl;
+		cout << "6. Exit" << endl << endl;
 
 		cout << "Enter your choice: ";
 		cin >> choice;
@@ -197,9 +197,8 @@ int main() {
 				cout << "1. Add New Donation\n";
 				cout << "2. View All Donations\n";
 				cout << "3. View Donations by Donor\n";
-				cout << "4. Mark Donation as Completed\n";
-				cout << "5. Remove Expired Donations\n";
-				cout << "6. Back to Main Menu\n\n";
+				cout << "4. Remove Expired Donations\n";
+				cout << "5. Back to Main Menu\n\n";
 				cout << "Enter choice: ";
 				cin >> sub; cin.ignore();
 
@@ -230,24 +229,18 @@ int main() {
 					donations.displayDonationsByDonor(id);
 				}
 				else if (sub == 4) {
-					int id; cout << "\nEnter Donation ID: "; cin >> id;
-					FoodDonation* d = donations.searchDonation(id);
-					if (d) { d->setStatus("Completed"); cout << "\nStatus updated to Completed!\n"; }
-					else cout << "\nDonation not found!\n";
-				}
-				else if (sub == 5) {
 					string today; cout << "\nEnter today's date (YYYY-MM-DD): "; cin >> today;
 					donations.removeExpiredDonations(today);
 				}
-				else if (sub == 6) {
+				else if (sub == 5) {
 					cout << "\nReturning to menu...\n";
 				}
 				else cout << "\nInvalid option!\n";
 
-				if (sub != 6) {
+				if (sub != 5) {
 					cout << "Returning to Main menu\n";
 				}
-			} while (sub != 6);
+			} while (sub != 5);
 		}
 
 		// 3. REQUEST MANAGEMENT
@@ -315,6 +308,9 @@ int main() {
 						if (match) {
 							// SUCCESS: Fulfill
 							match->reduceQuantity(r.quantity);
+							if (match->getQuantity() == 0) {
+								match->setStatus("Completed");
+							}
 							r.isFulfilled = true;
 							fulfilledStack.push(r);
 							saveSingleFulfilledRequest(r, "fulfilled_request.txt");
@@ -349,7 +345,7 @@ int main() {
 											", Needed: " + to_string(r.quantity) + ")";
 										break;
 									}
-									if (d.getStatus() != "Pending") {
+									if ((d.getStatus() != "Pending") && (d.getStatus() != "partially completed")) {
 										reason = "Donation already used";
 										break;
 									}
@@ -533,18 +529,22 @@ int main() {
 
 			cout << "Returning to menu...\n\n";
 		}
-		// 5. EXIT
-		// ========================================
+
 		else if (choice == 5) {
+			displayDonorDonationStatistics(donors, donations);
+		}
+		// 6. EXIT
+		// ========================================
+		else if (choice == 6) {
 			cout << "\nThank you for using Food Redistribution System!\n";
 			cout << "Together, we are reducing hunger and food waste.\n\n";
 		}
 		else {
-			cout << "\nInvalid choice! Please enter 1 to 5.\n";
+			cout << "\nInvalid choice! Please enter 1 to 6.\n";
 			cout << "Returning to Main menu\n";
 		}
 
-	} while (choice != 5);
+	} while (choice != 6);
 
 	donors.saveToFile("donors.txt");
 	donations.saveToFile("donations.txt");

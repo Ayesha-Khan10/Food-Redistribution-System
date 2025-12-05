@@ -16,3 +16,12 @@ Afaq,rice,20,HOSPITAL,jdc,Gulberg,1,1,2025-11-10
 Azan,rice,5,OLDAGE HOME,s,Gulberg,2,1,2025-10-11
 sara,rice,20,JDC,jdc,Clifton,4,1,2025-11-10
 Farooq,rice,2,CHARITY,jdc,Clifton,3,1,2025-11-10
+saba,Daal,10,HOSPITAL,patel hospital,Gulshan-e-Iqbal,1,1,2025-12-05
+saba,Daal,10,HOSPITAL,patel hospital,Saddar,1,1,2025-12-05
+saba,Daal,10,HOSPITAL,abc hospital,Gulshan-e-Iqbal,1,1,2025-12-05
+saba,Daal,10,HOSPITAL,patel hospital,Clifton,1,1,2025-12-05
+saba,Daal,10,HOSPITAL,patel hospital,Gulshan-e-Iqbal,1,1,2025-12-05
+Mehvish,Rice,10,HOSPITAL,patel hospital,Gulshan-e-Iqbal,1,1,2025-12-05
+ahmed,Rice,10,CHARITY,saylani welfare,Bahadurabad,3,1,2025-12-05
+Waqar,Daal,20,OLDAGE HOME,jdc,North Nazimabad,2,1,2025-12-06
+sana,Shawarma,3,HOSPITAL,shoukat khnaum,Bahadurabad,1,1,2025-12-06

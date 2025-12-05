@@ -1,3 +1,0 @@
-shiza,wraps,5,HOSPITAL,liaquat national,korangi,2025-11-23,0,1
-masfa ,pratha,7,CHARITY,selani welfare,nazmabad,2025-11-24,0,3
-amir,burgers,3,OLDAGE HOME,jdc,korangi,2025-11-24,0,2

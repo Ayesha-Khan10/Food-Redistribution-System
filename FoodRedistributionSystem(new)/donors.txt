@@ -1,3 +1,3 @@
-1,shanzay akmal,03352254784,organization,gulshan
-2,mesha saleem,03352267382,organization,sadar
-3,majeed,03217638763,organization,sadar
+101,meesha,03214576722,Indivisual,Saddar
+102,saba,03352254784,Organization,PECHS
+103,waqas,03342256789,Indivisual,Korangi

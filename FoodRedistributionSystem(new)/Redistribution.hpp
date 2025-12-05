@@ -152,6 +152,10 @@ public:
     bool removeDonor(int id);
     void displayDonors() const;
 
+    DonorNode* getHead() const {
+        return head;
+    }
+
     void saveToFile(const string& filename);
     void loadFromFile(const string& filename);
 
@@ -164,6 +168,7 @@ private:
     int donorId;         // Link to Donor
     string foodType;     // e.g., "Rice", "Vegetables"
     int quantity;        // Quantity in kg or units
+    int originalQuantity;
     string expiryDate;   // Expiry date (if applicable)
     string status;       //Pending or Completed
 
@@ -177,7 +182,8 @@ public:
     string getExpiryDate() const;
     string getStatus() const;      
     void setStatus(string newStatus);
-
+    int getOriginalQuantity();
+    void setOriginalQuantity(int qty);
     void reduceQuantity(int usedQty);
     void displayDonation() const;
 
@@ -203,7 +209,7 @@ public:
     void addDonation(FoodDonation d);
     bool removeDonation(int donationId);
     FoodDonation* searchDonation(int donationId);
-    void displayDonations() const;
+    void displayDonations();
     void displayDonationsByDonor(int donorId) const;  // Show all donations by a specific donor
     void displayDonationItemsOnly() const;
     void removeExpiredDonations(const string& todayDate);

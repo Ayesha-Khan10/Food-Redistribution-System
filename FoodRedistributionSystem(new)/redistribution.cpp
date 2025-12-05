@@ -468,8 +468,10 @@ DonorNode::DonorNode(Donor d)
 }
 
 // ---------------- DonorLinkedList ----------------
+
 DonorLinkedList::DonorLinkedList()
 {
+
     head = nullptr;
 }
 
@@ -589,8 +591,10 @@ FoodDonation::FoodDonation(int dId, int drId, string type, int qty, string date,
     donorId = drId;
     foodType = type;
     quantity = qty;
+    originalQuantity = qty;
     expiryDate = date;
     status = stat;
+
 }
 
 int FoodDonation::getDonationId() const
@@ -621,6 +625,14 @@ void FoodDonation::setStatus(string newStatus)
 {
     status = newStatus;
 }
+int FoodDonation:: getOriginalQuantity() 
+{
+    return originalQuantity;
+}
+void FoodDonation::setOriginalQuantity(int qty) {
+    originalQuantity = qty;
+}
+
 
 
 void FoodDonation::displayDonation() const
@@ -639,6 +651,9 @@ void FoodDonation::reduceQuantity(int usedQty) {
     if (quantity <= 0) {
         quantity = 0;
         status = "Completed";
+    }
+    else if (quantity > 0 && quantity < originalQuantity) {
+        status = "partially completed";
     }
 }
 
@@ -707,7 +722,7 @@ bool DonationLinkedList::removeDonation(int donationId)
     return true;
 }
 
-void DonationLinkedList::displayDonations() const
+void DonationLinkedList::displayDonations() 
 {
     if (head == nullptr) {
         cout << "\nNo donations to display." << endl;
@@ -762,11 +777,6 @@ FoodDonation* DonationLinkedList::findMatchingDonation(const string& foodTypeNee
             temp = temp->next;
             continue;
         }
-        // Not pending
-        if (d.getStatus() != "Pending") {
-            temp = temp->next;
-            continue;
-        }
         // Expired
         string expiry = trim(d.getExpiryDate());
         string reqDate = trim(requestDate);
@@ -786,8 +796,10 @@ void DonationLinkedList::displayDonationItemsOnly() const {
     }
     cout << "Available Food Items:\n";
     while (temp) {
-        cout << "- " << temp->data.getFoodType();
-        cout << " : " << temp->data.getQuantity() << endl;
+        if (temp->data.getQuantity() > 0) {
+            cout << "- " << temp->data.getFoodType()
+                << " : " << temp->data.getQuantity() << endl;
+        }
         temp = temp->next;
     }
 }
@@ -846,14 +858,14 @@ void DonationLinkedList::loadFromFile(const string& filename) {
     while (getline(in, line)) {
         stringstream ss(line);
 
-        string did, donorid, food, qty, exp, stat;
+        string did, donorid, food, qty,orgQty ,exp, stat;
 
         getline(ss, did, ',');
         getline(ss, donorid, ',');
         getline(ss, food, ',');
         getline(ss, qty, ',');
         getline(ss, exp, ',');
-        getline(ss, stat, ',');
+        getline(ss, stat);
 
         FoodDonation d(stoi(did), stoi(donorid), food, stoi(qty), exp, stat);
         addDonation(d);
@@ -861,6 +873,61 @@ void DonationLinkedList::loadFromFile(const string& filename) {
 
     in.close();
 }
+void displayDonorDonationStatistics(DonorLinkedList& donors, DonationLinkedList& donations) {
+    cout << "\n==================================================\n";
+    cout << "          DONOR & DONATION STATISTICS            \n";
+    cout << "==================================================\n\n";
+
+    // ---------------- Donor statistics ----------------
+    int totalDonors = 0;
+    int individualDonors = 0;
+    int organizationDonors = 0;
+
+    DonorNode* dTemp = donors.getHead();
+    while (dTemp) {
+        totalDonors++;
+        if (dTemp->data.getDonorType() == "Indivisual") individualDonors++;
+        else if (dTemp->data.getDonorType() == "Organization") organizationDonors++;
+        dTemp = dTemp->next;
+    }
+
+    // ---------------- Donation statistics ----------------
+    int totalDonations = 0;
+    int totalCompleted = 0;
+    int totalPartial = 0;
+    int totalPending = 0;
+    int totalQuantityRemaining = 0;
+
+    DonationNode* fTemp = donations.getHead();
+    while (fTemp) {
+        totalDonations++;
+        int remaining = fTemp->data.getQuantity();
+        int original = fTemp->data.getOriginalQuantity();
+
+        totalQuantityRemaining += remaining;
+
+        if (remaining == 0) totalCompleted++;
+        else if (remaining < original) totalPartial++;  // partially fulfilled
+        else totalPending++;                             // fully pending
+
+        fTemp = fTemp->next;
+    }
+
+    // ---------------- Display statistics ----------------
+    cout << "TOTAL DONORS                   : " << totalDonors << endl;
+    cout << "  - Individual Donors          : " << individualDonors << endl;
+    cout << "  - Organization Donors        : " << organizationDonors << endl;
+
+    cout << "TOTAL DONATIONS RECEIVED        : " << totalDonations << endl;
+    cout << "  - Fully Pending Donations    : " << totalPending << endl;
+    cout << "  - Partially Fulfilled        : " << totalPartial << endl;
+    cout << "  - Fully Completed Donations  : " << totalCompleted << endl;
+
+    cout << "TOTAL QUANTITY REMAINING        : " << totalQuantityRemaining << " units\n";
+
+    cout << "\n==================================================\n\n";
+}
+
 
 //Roads
 template <typename T>
