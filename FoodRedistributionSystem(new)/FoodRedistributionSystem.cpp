@@ -86,8 +86,18 @@ int main() {
 					donors.displayDonors();
 				}
 				else if (sub == 3) {
-					int id; cout << "Enter Donor ID: "; cin >> id;
-					cout << (donors.searchDonor(id) ? "\nDonor FOUND!\n" : "\nDonor not found!\n");
+					int id;
+					cout << "Enter Donor ID: ";
+					cin >> id;
+					Donor* d = donors.searchDonor(id);
+
+					if (d) {
+						cout << "\n--- DONOR FOUND ---\n";
+						d->displayDonor();
+					}
+					else {
+						cout << "\nDonor not found!\n";
+					}
 				}
 				else if (sub == 4) {
 					int id; cout << "\nEnter Donor ID to remove: "; cin >> id;
@@ -228,7 +238,7 @@ int main() {
 							}
 							r.isFulfilled = true;
 							fulfilledStack.push(r);
-							saveSingleFulfilledRequest(r, "fulfilled_request.txt");
+							saveSingleFulfilledRequest(r, "fulfilled_request.csv");
 
 							Donor* donor = donors.searchDonor(match->getDonorId());
 							string donorLoc = donor ? donor->getAddress() : "Unknown Location";

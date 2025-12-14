@@ -517,7 +517,7 @@ void Graph<T>::display()                                {
 }
 
 
-// ---------------- Donor Implementation ----------------
+//Donor Implementation
 Donor::Donor(int id, string name, string contact, string type, string addr)
 {
     donorId = id;
@@ -562,14 +562,14 @@ void Donor::displayDonor() const
         << endl;
 }
 
-// ---------------- DonorNode ----------------
+//DonorNode
 DonorNode::DonorNode(Donor d)
 {
     data = d;
     next = nullptr;
 }
 
-// ---------------- DonorLinkedList ----------------
+//DonorLinkedList 
 
 DonorLinkedList::DonorLinkedList()
 {
@@ -705,7 +705,7 @@ void DonorLinkedList::loadFromFile(const string& filename)
     in.close();
 }
 
-// ---------------- FoodDonation ----------------
+//FoodDonation 
 FoodDonation::FoodDonation(int dId, int drId, string type, int qty, string date, string stat)
 {
     donationId = dId;
@@ -754,8 +754,6 @@ void FoodDonation::setOriginalQuantity(int qty) {
     originalQuantity = qty;
 }
 
-
-
 void FoodDonation::displayDonation() const
 {
     cout << "Donation ID: " << donationId
@@ -778,13 +776,13 @@ void FoodDonation::reduceQuantity(int usedQty) {
     }
 }
 
-// ---------------- DonationNode ----------------
+//DonationNode 
 DonationNode::DonationNode(FoodDonation d)
 {
     data = d;
     next = nullptr;
 }
-// ---------------- DonationLinkedList ----------------
+//DonationLinkedList
 DonationLinkedList::DonationLinkedList()
 {
     head = nullptr;
@@ -977,7 +975,6 @@ void DonationLinkedList::loadFromFile(const string& filename)
     head = nullptr;
 
     string line;
-    getline(in, line); // skip CSV header
 
     while (getline(in, line))
     {
@@ -1016,7 +1013,7 @@ void displayDonorDonationStatistics(DonorLinkedList& donors, DonationLinkedList&
     cout << "          DONOR & DONATION STATISTICS            \n";
     cout << "==================================================\n\n";
 
-    // ---------------- Donor statistics ----------------
+    //Donor statistics
     int totalDonors = 0;
     int individualDonors = 0;
     int organizationDonors = 0;
@@ -1024,12 +1021,12 @@ void displayDonorDonationStatistics(DonorLinkedList& donors, DonationLinkedList&
     DonorNode* dTemp = donors.getHead();
     while (dTemp) {
         totalDonors++;
-        if (dTemp->data.getDonorType() == "Indivisual") individualDonors++;
-        else if (dTemp->data.getDonorType() == "Organization") organizationDonors++;
+        if (toLower(dTemp->data.getDonorType()) == "indivisual") individualDonors++;
+        else if (toLower(dTemp->data.getDonorType()) == "organization") organizationDonors++;
         dTemp = dTemp->next;
     }
 
-    // ---------------- Donation statistics ----------------
+    //Donation statistics
     int totalDonations = 0;
     int totalCompleted = 0;
     int totalPartial = 0;
@@ -1051,9 +1048,9 @@ void displayDonorDonationStatistics(DonorLinkedList& donors, DonationLinkedList&
         fTemp = fTemp->next;
     }
 
-    // ---------------- Display statistics ----------------
+    //Display statistics
     cout << "TOTAL DONORS                   : " << totalDonors << endl;
-    cout << "  - Individual Donors          : " << individualDonors << endl;
+    cout << "  - Indivisual Donors          : " << individualDonors << endl;
     cout << "  - Organization Donors        : " << organizationDonors << endl;
 
     cout << "TOTAL DONATIONS RECEIVED        : " << totalDonations << endl;
