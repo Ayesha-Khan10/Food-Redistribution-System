@@ -25,8 +25,8 @@ int main() {
 	loadFulfilledRequests(fulfilledStack, "fulfilled_request.csv");
 
 
-	loadPendingRequests(pendingQueue, "pending.txt");
-	loadUrgentRequests(requestPQ, "urgent.txt");
+	loadPendingRequests(pendingQueue, "pending.csv");
+	loadUrgentRequests(requestPQ, "urgent.csv");
 
 
 	int choice;

@@ -373,9 +373,6 @@ void loadPendingRequests(Queue<Request>& q, const string filename)
 
     string line;
 
-    // Skip header
-    getline(in, line);
-
     while (getline(in, line))
     {
         stringstream ss(line);
@@ -415,7 +412,7 @@ void saveUrgentRequests(PriorityQueue<Request>& pq, const std::string& filename)
     bool fileIsEmpty = check.peek() == std::ifstream::traits_type::eof();
     check.close();
 
-    std::ofstream out(filename, std::ios::app);
+    std::ofstream out(filename);
     if (!out) {
         std::cout << "Error opening file!\n";
         return;
@@ -451,23 +448,31 @@ void loadUrgentRequests(PriorityQueue<Request>& pq, const std::string& filename)
 
     pq = PriorityQueue<Request>(); // reset
     std::string line;
+    getline(in, line); // skip header
+
     while (getline(in, line)) {
+        if (line.empty()) continue;
+
         std::stringstream ss(line);
-        std::string name, food, orgType, orgName, loc, date, fulfilledStr, prioStr;
-        int qty, prio; bool fulfilled;
+        std::string name, food, orgType, orgName, loc, date;
+        std::string fulfilledStr, prioStr, qtyStr;
+        int qty = 0, prio = 0;
+        bool fulfilled = false;
 
         getline(ss, name, ',');
         getline(ss, food, ',');
-        ss >> qty; ss.ignore();
+        getline(ss, qtyStr, ',');
         getline(ss, orgType, ',');
         getline(ss, orgName, ',');
         getline(ss, loc, ',');
         getline(ss, date, ',');
         getline(ss, fulfilledStr, ',');
-        getline(ss, prioStr, ',');
+        getline(ss, prioStr);
+
+        if (!qtyStr.empty()) qty = stoi(qtyStr);
+        if (!prioStr.empty()) prio = stoi(prioStr);
 
         fulfilled = (fulfilledStr == "1" || fulfilledStr == "true");
-        prio = stoi(prioStr);
 
         Request r(name, food, qty, orgType, orgName, loc, date);
         r.isFulfilled = fulfilled;
@@ -477,6 +482,7 @@ void loadUrgentRequests(PriorityQueue<Request>& pq, const std::string& filename)
     }
     in.close();
 }
+
 
 //display fullfiled stack 
 template <>
