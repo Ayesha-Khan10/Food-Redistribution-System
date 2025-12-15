@@ -18,7 +18,6 @@ vector<string> predefinedLocations = {
 };
 
 int main() {
-	Roads<string> cityRoads;
 	initializeKarachiMap();
 	donors.loadFromFile("donors.csv");
 	donations.loadFromFile("donations.csv");
@@ -221,7 +220,6 @@ int main() {
 
 					int fulfilled = 0;
 					int movedToPending = 0;
-					Roads<string> cityRoads;
 
 					// We'll process all urgent requests without stopping
 					while (!requestPQ.isEmpty()) {
@@ -248,7 +246,7 @@ int main() {
 							cout << "           Delivered: " << r.quantity << " " << r.foodType << "\n";
 							cout << "           From donor in: " << donorLoc << "\n";
 							cout << "           Route: ";
-							cityRoads.shortestPath(donorLoc, r.location);
+							karachiRoads.shortestPath(donorLoc, r.location);
 							cout << "\n\n";
 
 							fulfilled++;

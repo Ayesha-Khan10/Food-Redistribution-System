@@ -1093,56 +1093,76 @@ void Roads<T>::addRoad(T from, T to, int distance) {
 
 template <typename T>
 void Roads<T>::shortestPath(T start, T end) {
-    // Dijkstra's algorithm implementation
+    // Dijkstra using the project's custom PriorityQueue (max-heap).
+    // We push negative distances so the max-heap behaves like a min-heap.
     unordered_map<T, int> dist;
     unordered_map<T, T> prev;
-    PriorityQueue<pair<int, T>> pq;
 
+    PriorityQueue<pair<int, T>> pq; // will store { -distance, node }
+
+    // Initialize distances and predecessors
     for (const auto& loc : roadMap) {
         dist[loc.first] = INT_MAX;
         prev[loc.first] = T();
     }
 
+    // Validate nodes
+    if (roadMap.find(start) == roadMap.end() || roadMap.find(end) == roadMap.end()) {
+        cout << "No path from " << start << " to " << end << " (unknown location)\n";
+        return;
+    }
+
     dist[start] = 0;
-    pq.push({ 0, start });
+    pq.push({ 0, start }); // -0 == 0
 
     while (!pq.isEmpty()) {
-        T current = pq.top().second;
+        auto top = pq.top();
         pq.pop();
+
+        int negDist = top.first;        // stored as negative
+        T current = top.second;
+        int currentDist = -negDist;     // real (non-negative) distance
+
+        // skip stale entries
+        if (currentDist != dist[current]) continue;
 
         if (current == end) break;
 
         for (const auto& neighbor : roadMap[current]) {
             T next = neighbor.first;
             int weight = neighbor.second;
-
+            if (dist[current] == INT_MAX) continue; // unreachable so far
             int alt = dist[current] + weight;
             if (alt < dist[next]) {
                 dist[next] = alt;
                 prev[next] = current;
-                pq.push({ alt, next });
+                pq.push({ -alt, next }); // push negative so max-heap gives smallest distance
             }
         }
     }
 
+    if (dist[end] == INT_MAX) {
+        cout << "No path from " << start << " to " << end << endl;
+        return;
+    }
+
     // Reconstruct path
     vector<T> path;
-    for (T at = end; at != T(); at = prev[at]) {
+    T at = end;
+    while (!(at == T())) {
         path.push_back(at);
+        if (prev[at] == T()) break;
+        at = prev[at];
     }
     reverse(path.begin(), path.end());
 
     // Display path
-    if (dist[end] == INT_MAX) {
-        cout << "No path from " << start << " to " << end << endl;
+    cout << "[Shortest path from " << start << " to " << end << ": ";
+    for (size_t i = 0; i < path.size(); ++i) {
+        cout << path[i];
+        if (i + 1 < path.size()) cout << " -> ";
     }
-    else {
-        cout << "[Shortest path from " << start << " to " << end << ": ";
-        for (const auto& loc : path) {
-            cout << loc << " -> ";
-        }
-        cout << "(Distance: " << dist[end] << ") ]" << endl;
-    }
+    cout << " (Distance: " << dist[end] << ") ]" << endl;
 }
 
 string karachiLocations[] = {
@@ -1160,37 +1180,44 @@ void initializeKarachiMap() {
         karachiRoads.addLocation(karachiLocations[i]);
     }
 
-        
     karachiRoads.addRoad("Saddar", "Clifton", 8);
     karachiRoads.addRoad("Saddar", "PECHS", 5);
     karachiRoads.addRoad("Saddar", "Lyari", 4);
     karachiRoads.addRoad("Saddar", "Gulshan-e-Iqbal", 10);
     karachiRoads.addRoad("Saddar", "North Nazimabad", 12);
-    
+
     karachiRoads.addRoad("Clifton", "Defense", 6);
     karachiRoads.addRoad("Defense", "PECHS", 6);
     karachiRoads.addRoad("Defense", "Korangi", 12);
-    
+
     karachiRoads.addRoad("PECHS", "Bahadurabad", 3);
     karachiRoads.addRoad("Bahadurabad", "Gulshan-e-Iqbal", 6);
     karachiRoads.addRoad("Gulshan-e-Iqbal", "Gulistan-e-Jauhar", 4);
     karachiRoads.addRoad("Gulistan-e-Jauhar", "Malir", 9);
-    karachiRoads.addRoad("Malir", "Shah Faisal Colony", 5);
-    karachiRoads.addRoad("Shah Faisal Colony", "Korangi", 6);
-    
+
+    // Use the same name as karachiLocations array
+    karachiRoads.addRoad("Malir", "Shahrah-e-Faisal", 5);
+    karachiRoads.addRoad("Shahrah-e-Faisal", "Korangi", 6);
+
     karachiRoads.addRoad("Korangi", "Landhi", 8);
     karachiRoads.addRoad("Landhi", "SITE", 14);
-    
+
     karachiRoads.addRoad("North Nazimabad", "Buffer Zone", 5);
     karachiRoads.addRoad("Buffer Zone", "Gulberg", 4);
     karachiRoads.addRoad("Gulberg", "Gulshan-e-Iqbal", 7);
-    
+
     karachiRoads.addRoad("SITE", "Lyari", 7);
     karachiRoads.addRoad("SITE", "North Nazimabad", 11);
 
     karachiRoads.addRoad("Clifton", "Lyari", 6);
-    karachiRoads.addRoad("Gulistan-e-Jauhar", "Shah Faisal Colony", 5);
+    // fixed name here too:
+    karachiRoads.addRoad("Gulistan-e-Jauhar", "Shahrah-e-Faisal", 5);
+
     karachiRoads.addRoad("Bahadurabad", "Korangi", 10);
     karachiRoads.addRoad("Gulshan-e-Iqbal", "Malir", 12);
+
+    // Optional: debug output to verify nodes/edges after initialization
+    // Remove/comment this in production
+    cout << "Karachi road map initialized:\n";
 }
 
